@@ -8,9 +8,11 @@ export class AuthService {
     private userRepository = AppDataSource.getRepository(User);
 
     async register(data: RegisterInput) {
+        console.log("AuthService.register called with data:", data);
         const existingUser = await this.userRepository.findOne({
             where: { email: data.email }
         });
+        console.log("Existing user check:", existingUser);
 
         if (existingUser) {
             throw new Error("Email already exists");
