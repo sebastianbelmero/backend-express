@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 
 export interface JWTPayload {
     userId: number;
@@ -10,18 +10,18 @@ export class JWTUtil {
     private static refreshSecret = process.env.JWT_REFRESH_SECRET || "rahasia_refresh";
 
     static generateAccessToken(payload: JWTPayload): string {
-        return jwt.sign(payload, this.accessSecret, { expiresIn: "15m" });
+        return sign(payload, this.accessSecret, { expiresIn: "15m" });
     }
 
     static generateRefreshToken(payload: JWTPayload): string {
-        return jwt.sign(payload, this.refreshSecret, { expiresIn: "7d" });
+        return sign(payload, this.refreshSecret, { expiresIn: "7d" });
     }
 
     static verifyAccessToken(token: string): JWTPayload {
-        return jwt.verify(token, this.accessSecret) as JWTPayload;
+        return verify(token, this.accessSecret) as JWTPayload;
     }
 
     static verifyRefreshToken(token: string): JWTPayload {
-        return jwt.verify(token, this.refreshSecret) as JWTPayload;
+        return verify(token, this.refreshSecret) as JWTPayload;
     }
 }

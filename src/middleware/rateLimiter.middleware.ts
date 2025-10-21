@@ -10,8 +10,8 @@ export const loginRateLimiter = rateLimit({
         client: redis,
         prefix: "rl:login:"
     }),
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 5, // 5 requests per minute
+    windowMs: 1 * 60 * 1000,
+    max: 5,
     message: {
         success: false,
         message: "Too many login attempts, please try again later"

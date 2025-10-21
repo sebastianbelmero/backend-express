@@ -1,8 +1,8 @@
-import bcrypt from "bcrypt";
 import { AppDataSource } from "../data-source";
 import { User } from "../entity/User";
 import { RegisterInput, LoginInput } from "../validators/auth.validator";
 import { JWTUtil } from "../utils/jwt.util";
+import { compare, hash } from "bcrypt";
 
 export class AuthService {
     private userRepository = AppDataSource.getRepository(User);
@@ -16,7 +16,7 @@ export class AuthService {
             throw new Error("Email already exists");
         }
 
-        const hashedPassword = await bcrypt.hash(data.password, 10);
+        const hashedPassword = await hash(data.password, 10);
 
         const user = this.userRepository.create({
             name: data.name,
@@ -39,7 +39,7 @@ export class AuthService {
             throw new Error("Invalid credentials");
         }
 
-        const isPasswordValid = await bcrypt.compare(data.password, user.password);
+        const isPasswordValid = await compare(data.password, user.password);
 
         if (!isPasswordValid) {
             throw new Error("Invalid credentials");
