@@ -3,6 +3,8 @@ import { StatusCodes } from "http-status-codes";
 import { AuthService } from "../services/auth.service";
 import { registerSchema, loginSchema } from "../validators/auth.validator";
 import { ResponseUtil } from "../utils/response.util";
+import { JwtPayload } from "jsonwebtoken";
+import { JWTUtil } from "../utils/jwt.util";
 
 export class AuthController {
     private authService = new AuthService();
@@ -110,6 +112,54 @@ export class AuthController {
                 res,
                 error.message || "Failed to get profile",
                 StatusCodes.NOT_FOUND
+            );
+        }
+    };
+
+    refresh = async (req: Request, res: Response) => {
+        try {
+            const refreshToken = req.cookies.refreshToken;
+
+            if (!refreshToken) {
+                return ResponseUtil.error(
+                    res,
+                    "Refresh token not provided",
+                    StatusCodes.UNAUTHORIZED
+                );
+            }
+
+            let decoded: JwtPayload;
+            try {
+                decoded = JWTUtil.verifyRefreshToken(refreshToken);
+            } catch (error) {
+                return ResponseUtil.error(
+                    res,
+                    "Invalid or expired refresh token",
+                    StatusCodes.FORBIDDEN
+                );
+            }
+
+            const payload = { userId: decoded.userId, email: decoded.email };
+            const newAccessToken = JWTUtil.generateAccessToken(payload);
+
+            res.cookie("accessToken", newAccessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: 15 * 60 * 1000
+            });
+
+            return ResponseUtil.success(
+                res,
+                { message: "Access token refreshed" },
+                "Token refreshed successfully"
+            );
+
+        } catch (error: any) {
+            return ResponseUtil.error(
+                res,
+                error.message || "Refresh token failed",
+                StatusCodes.INTERNAL_SERVER_ERROR
             );
         }
     };

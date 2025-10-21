@@ -9,8 +9,6 @@ AuthRoutes.post('/register', authController.register);
 AuthRoutes.post('/login', loginRateLimiter, authController.login);
 AuthRoutes.post('/logout', authController.logout);
 AuthRoutes.get('/profile', authMiddleware, authController.profile);
-AuthRoutes.get('/hello', (req, res) => {
-    res.send('Hello, world!');
-});
+AuthRoutes.post('/refresh', authController.refresh);
 
 export default AuthRoutes;
